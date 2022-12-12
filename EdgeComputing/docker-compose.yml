@@ -1,0 +1,376 @@
+# /*******************************************************************************
+#  * Copyright 2020 Redis Labs Inc.
+#  * Copyright 2020 Intel Corporation.
+#  *
+#  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+#  * in compliance with the License. You may obtain a copy of the License at
+#  *
+#  * http://www.apache.org/licenses/LICENSE-2.0
+#  *
+#  * Unless required by applicable law or agreed to in writing, software distributed under the License
+#  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+#  * or implied. See the License for the specific language governing permissions and limitations under
+#  * the License.
+#  *
+#  * @author: Jim White, Dell
+#  * @author: Andre Srinivasan, Redis Labs
+#  * @author: Leonard Goodell, Intel
+#  * EdgeX Foundry, Geneva, version 1.2.0
+#  * added: May 14, 2020
+#  *******************************************************************************/
+
+# NOTE:  this Docker Compose file does not contain the security services - namely the API Gateway
+# and Secret Store
+
+version: '3.4'
+
+# all common shared environment variables defined here:
+x-common-env-variables: &common-variables
+  EDGEX_SECURITY_SECRET_STORE: "false"
+  Registry_Host: edgex-core-consul
+  Clients_CoreData_Host: edgex-core-data
+  Clients_Data_Host: edgex-core-data # For device Services
+  Clients_Notifications_Host: edgex-support-notifications
+  Clients_Metadata_Host: edgex-core-metadata
+  Clients_Command_Host: edgex-core-command
+  Clients_Scheduler_Host: edgex-support-scheduler
+  Clients_RulesEngine_Host: edgex-kuiper
+  Clients_VirtualDevice_Host: edgex-device-virtual
+  Databases_Primary_Host: edgex-redis
+  # Required in case old configuration from previous release used.
+  # Change to "true" if re-enabling logging service for remote logging
+  Logging_EnableRemote: "false"
+  #  Clients_Logging_Host: edgex-support-logging # un-comment if re-enabling logging service for remote logging
+  Databases_Device_Management: mongo 
+
+volumes:
+  db-data:
+  log-data:
+  consul-config:
+  consul-data:
+  MongoDBVolume:
+
+services:
+  consul:
+    image: edgexfoundry/docker-edgex-consul:1.2.0
+    ports:
+      - "127.0.0.1:8400:8400"
+      - "127.0.0.1:8500:8500"
+    container_name: edgex-core-consul
+    hostname: edgex-core-consul
+    networks:
+      - edgex-network
+    volumes:
+      - consul-config:/consul/config:z
+      - consul-data:/consul/data:z
+    environment: 
+      - EDGEX_DB=redis
+      - EDGEX_SECURE=false
+
+  redis:
+    image: redis:5.0.8-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    container_name: edgex-redis
+    hostname: edgex-redis
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+    volumes:
+      - db-data:/data:z
+
+  data:
+    image: edgexfoundry/docker-core-data-go:1.2.1
+    ports:
+      - "127.0.0.1:48080:48080"
+      - "127.0.0.1:5563:5563"
+    container_name: edgex-core-data
+    hostname: edgex-core-data
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-core-data
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+      - metadata
+
+  metadata:
+    image: edgexfoundry/docker-core-metadata-go:1.2.1
+    ports:
+      - "127.0.0.1:48081:48081"
+    container_name: edgex-core-metadata
+    hostname: edgex-core-metadata
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-core-metadata
+      Service_Timeout: "20000"
+      Notifications_Sender: edgex-core-metadata
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+      #- notifications
+
+  command:
+    image: edgexfoundry/docker-core-command-go:1.2.1
+    ports:
+      - "127.0.0.1:48082:48082"
+    container_name: edgex-core-command
+    hostname: edgex-core-command
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-core-command
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+      - metadata
+
+  notifications:
+    image: edgexfoundry/docker-support-notifications-go:1.2.1
+    ports:
+      - "127.0.0.1:48060:48060"
+    container_name: edgex-support-notifications
+    hostname: edgex-support-notifications
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-support-notifications
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+
+  scheduler:
+    image: edgexfoundry/docker-support-scheduler-go:1.2.1
+    ports:
+      - "127.0.0.1:48085:48085"
+    container_name: edgex-support-scheduler
+    hostname: edgex-support-scheduler
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-support-scheduler
+      IntervalActions_ScrubPushed_Host: edgex-core-data
+      IntervalActions_ScrubAged_Host: edgex-core-data
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+
+
+  app-service-mqtt:
+    image: edgexfoundry/docker-app-service-configurable:1.1.0
+    ports:
+      - "127.0.0.1:48101:48101"
+    container_name: edgex-app-service-configurable-mqtt
+    hostname: edgex-app-service-configurable-mqtt
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      edgex_profile: mqtt-export
+      Service_Host: edgex-app-service-configurable-mqtt
+      Service_Port: 48101
+      MessageBus_SubscribeHost_Host: edgex-core-data
+      Binding_PublishTopic: events
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Address: eclipse-mosquitto
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Port: 1883
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Protocol: tcp
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Publisher: edgex
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Topic: EdgeXEvent
+    depends_on:
+      - consul
+      - data
+    restart: always
+
+#################################################################
+# MQTT Broker
+#################################################################
+  mosquitto:
+    image: "eclipse-mosquitto"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    container_name: eclipse-mosquitto
+    networks:
+      - edgex-network
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./data:/mosquitto/data
+      - ./log:/mosquitto/log
+    restart: always
+
+#################################################################
+# Device_Management MicroService
+# Device_Management + Device_Management_UI +MongoDB + MongoDB_Express
+#################################################################
+  device_management:
+    image: device_management:1.0
+    ports: 
+        - "0.0.0.0:5555:5555"
+    container_name: device_management
+    networks:
+        - edgex-network
+    environment:
+      <<: *common-variables
+    depends_on:
+        - mongo
+        - data
+    restart: always
+
+  mongoexpress:
+    image: mongo-express
+    ports:
+        - "127.0.0.1:8085:8081"
+    links:
+        - mongo
+    environment: 
+        - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
+    networks:
+        - edgex-network
+    depends_on: 
+        - mongo
+    restart: always
+
+  mongo:
+    image: mongo:latest
+    ports: 
+        - "127.0.0.1:27017:27017"
+    container_name: mongo
+    volumes: 
+        - MongoDBVolume:/data/db
+    networks:
+        - edgex-network
+
+  device-random:
+    image: edgexfoundry/docker-device-random-go:1.2.1
+    ports:
+      - "127.0.0.1:49988:49988"
+    container_name: edgex-device-random
+    hostname: edgex-device-random
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-device-random
+    depends_on:
+      - data
+      - command
+
+networks:
+  edgex-network:
+    driver: "bridge"
+
+
+#################################################################
+# MQTT Device Service
+#################################################################
+
+  # device-mqtt:
+  #   image: edgexfoundry/docker-device-mqtt-go:1.0.0
+  #   ports:
+  #     - "49982:49982"
+  #   container_name: edgex-device-mqtt
+  #   hostname: edgex-device-mqtt
+  #   networks:
+  #     - edgex-network
+  #   volumes:
+  #     - db-data:/data/db
+  #     - log-data:/edgex/logs
+  #     - consul-config:/consul/config
+  #     - consul-data:/consul/data
+  #     - ./mqtt:/custom-config
+  #   depends_on:
+  #     - data
+  #     - command
+  #   entrypoint:
+  #     - /device-mqtt
+  #     # - --registry=consul://edgex-core-consul:8500
+  #     - --confdir=/custom-config
+
+#################################################################
+# Cobs Device Service
+#################################################################
+
+  # device-cobs:
+  #   image: device-cobs:latest
+  #   ports:
+  #     - "49999:49999"
+  #   container_name: edgex-device-cobs
+  #   hostname: edgex-device-cobs
+  #   networks:
+  #     - edgex-network
+  #   environment:
+  #     <<: *common-variables
+  #     Service_Host: edgex-device-cobs
+  #   volumes:
+  #     - ./Cobs:/custom-config
+  #   devices:
+  #     - "/dev/ttyUSB0:/dev/ttyUSB0"
+  #   depends_on:
+  #     - data
+  #     - command
+  #   entrypoint: 
+  #     - /device-cobs
+  #     - --confdir=/custom-config
+
+
+#################################################################
+# Opcua Device Service
+#################################################################
+
+  # device-opcua:
+  #   image: device-opcua:latest
+  #   ports:
+  #     - "49952:49952"
+  #   container_name: edgex-device-opcua
+  #   hostname: edgex-device-opcua
+  #   networks:
+  #     - edgex-network
+  #   environment:
+  #     <<: *common-variables
+  #     Service_Host: edgex-device-opcua
+  #   volumes:
+  #     - ./opcua:/custom-config
+  #   depends_on:
+  #     - data
+  #     - command
+  #   entrypoint:
+  #     - /device-opcua-c
+  #     - --confdir=/custom-config
+
+#################################################################
+# Modbus Device Service
+#################################################################
+  # device-modbus:
+  #   image: edgexfoundry/docker-device-modbus-go:1.2.1
+  #   ports:
+  #     - "0.0.0.0:49991:49991"
+  #   container_name: edgex-device-modbus
+  #   hostname: edgex-device-modbus
+  #   volumes:
+  #     - ./modbus:/custom-config
+  #   networks:
+  #     - edgex-network
+  #   environment:
+  #     <<: *common-variables
+  #     Service_Host: edgex-device-modbus
+  #   depends_on:
+  #     - data
+  #     - command
+  #   entrypoint:
+  #     - /device-modbus
+  #     - --registry
+  #     - --confdir=/custom-config
+
