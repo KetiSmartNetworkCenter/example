@@ -1,0 +1,92 @@
+name: "Modbus"
+manufacturer: "KETI"
+model: "simulator"
+description: "Temperature Sensor"
+labels:
+  - "modbus"
+deviceResources:
+  -
+    name: "ObjTemp"
+    description: "Object Temperature"
+    attributes:
+      { primaryTable: "HOLDING_REGISTERS", startingAddress: "353" }
+    properties:
+      value:
+        { type: "FLOAT32", floatEncoding: "eNotation", scale: "1" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "min"}
+  -
+    name: "AmbTemp"
+    description: "Ambient Temperature"
+    attributes:
+      { primaryTable: "HOLDING_REGISTERS", startingAddress: "355" }
+    properties:
+      value:
+        { type: "FLOAT32", floatEncoding: "eNotation", scale: "1" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "min"}
+  -
+    name: "Distance"
+    description: "Distance Sensor"
+    attributes:
+      { primaryTable: "HOLDING_REGISTERS", startingAddress: "355" }
+    properties:
+      value:
+        { type: "FLOAT32", floatEncoding: "eNotation", scale: "1" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "min"}
+
+deviceCommands:
+  -
+    name: "ObjTemp"
+    get:
+      - { index: "1", operation: "get", deviceResource: "ObjTemp" }
+  -
+    name: "AmbTemp"
+    get:
+      - { index: "1", operation: "get", deviceResource: "AmbTemp" }
+  -
+    name: "Distance"
+    get:
+      - { index: "1", operation: "get", deviceResource: "Distance" }
+
+coreCommands:
+  -
+    name: "ObjTemp"
+    get:
+      path: "/api/v1/device/{deviceId}/ObjTemp"
+      responses:
+        -
+          code: "200"
+          description: "Get the Object Temperature"
+          expectedValues: ["ObjTemp"]
+        -
+          code: "500"
+          description: "internal server error"
+          expectedValues: []
+  -
+    name: "AmbTemp"
+    get:
+      path: "/api/v1/device/{deviceId}/AmbTemp"
+      responses:
+        -
+          code: "200"
+          description: "Get the Ambient Temperature"
+          expectedValues: ["AmbTemp"]
+        -
+          code: "500"
+          description: "internal server error"
+          expectedValues: []
+  -
+    name: "Distance"
+    get:
+      path: "/api/v1/device/{deviceId}/Distance"
+      responses:
+        -
+          code: "200"
+          description: "Get the Distancce"
+          expectedValues: ["Distance"]
+        -
+          code: "500"
+          description: "internal server error"
+          expectedValues: []

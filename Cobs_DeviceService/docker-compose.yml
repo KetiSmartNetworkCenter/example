@@ -1,0 +1,22 @@
+  
+  device-cobs:
+    image: device-cobs:latest
+    ports:
+      - "49999:49999"
+    container_name: edgex-device-cobs
+    hostname: edgex-device-cobs
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-device-cobs
+    volumes:
+      - ./Cobs:/custom-config
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    depends_on:
+      - data
+      - command
+    entrypoint: 
+      - /device-cobs
+      - --confdir=/custom-config

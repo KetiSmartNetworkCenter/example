@@ -1,0 +1,54 @@
+name: "Docker_CobsSerialDevice"
+manufacturer: "KETI SMART LAB"
+model: "cobsDemo"
+description: "Cobs Demo Device"
+labels:
+  - "CobsSerial"
+
+deviceResources:
+      - name: Status
+        description: "Status of Cobs Device"
+        attributes:
+            { parameter: "status" }
+        properties:
+            value:
+                { type: "uint32", readWrite: "R" }
+            units:
+                { defaultValue: "things" }
+      - name: Distance
+        description: "Distance values"
+        attributes:
+            { parameter: "distance" }
+        properties:
+          value:
+            { type: "FLOAT32", readWrite: "R" , floatEncoding: "eNotation"}
+          units:
+            { defaultValue: "things" }
+
+
+coreCommands:
+  - name: Status
+    get:
+        path: "/api/v1/device/{deviceId}/Status"
+        responses:
+          -
+            code: "200"
+            description: "Get the Status reading."
+            expectedValues: ["Status"]
+          -
+            code: "503"
+            description: "service unavailable"
+            expectedValues: []
+
+  - name: Distance
+    get:
+      path: "/api/v1/device/{deviceId}/Distance"
+      responses:
+        -
+          code: "200"
+          description: "Get the Distance reading."
+          expectedValues: ["Distance"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []

@@ -1,0 +1,52 @@
+[Service]
+  Port = 49999
+  Timeout = 5000
+  ConnectRetries = 10
+  Labels = [ 'Template' ]
+  StartupMsg = 'Template device started'
+  CheckInterval = '10s'
+
+[Clients]
+  [Clients.Data]
+    Host = 'edgex-core-data'
+    Port = 48080
+
+  [Clients.Metadata]
+    Host = 'edgex-core-metadata'
+    Port = 48081
+
+[Device]
+  DataTransform = true
+  Discovery = false
+  InitCmd = ''
+  InitCmdArgs = ''
+  MaxCmdOps = 128
+  MaxCmdResultLen = 256
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = ''
+  SendReadingsOnChanged = true
+
+[Logging]
+  EnableRemote = false
+  File = '-'
+  LogLevel = 'DEBUG'
+
+[Driver]
+  uartDevice = '/dev/ttyUSB0'
+  uartSpeed  = '115200'
+
+[[DeviceList]]
+  Name = 'Cobs'
+  Profile = 'Docker_CobsSerialDevice'
+  Description = 'An Example Cobs Device'
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.Cobs]
+  [[DeviceList.AutoEvents]]
+    Resource = 'Status'
+    OnChange = false
+    Frequency = '1s'
+  [[DeviceList.AutoEvents]]
+    Resource = 'Distance'
+    OnChange = false
+    Frequency = '1s'

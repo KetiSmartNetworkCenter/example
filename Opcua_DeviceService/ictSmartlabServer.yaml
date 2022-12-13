@@ -1,0 +1,55 @@
+name: "Docker_ICT SmartLab OPC-UA Server - Profile"
+manufacturer: "Docker_KetiSmartlab"
+description: "OPC-UA Client"
+labels:
+  - "opc-ua"
+
+deviceResources:
+      - name: ambientTemperature 
+        description: "ambientTemperature variable"
+        attributes:
+          { nodeID: "ambientTemperature" , nsIndex: "1", IDType: "STRING" , monitored: "True"}
+        properties:
+          value:
+                  { type: "Float64", readWrite: "R", floatEncoding: "eNotation" }
+          units:
+            { defaultValue: "Float64" }
+
+      - name: objectTemperature 
+        description: "objectTemperature variable"
+        attributes:
+          { nodeID: "objectTemperature" , nsIndex: "1", IDType: "STRING", monitored: "True" }
+        properties:
+          value:
+                  { type: "Float64", readWrite: "R", floatEncoding: "eNotation" }
+          units:
+            { defaultValue: "Float64" }
+
+
+coreCommands:
+  - name: ambientTemperature 
+    get:
+      path: "/api/v1/device/{deviceId}/ambientTemperature"
+      responses:
+      -
+        code: "200"
+        description: "Get the ambientTemperature value."
+        expectedValues: ["ambientTemperature"]
+      -
+        code: "503"
+        description: "service unavailable"
+        expectedValues: []
+
+  - name: objectTemperature 
+    get:
+      path: "/api/v1/device/{deviceId}/objectTemperature"
+      responses:
+      -
+        code: "200"
+        description: "Get the objectTemperature value."
+        expectedValues: ["objectTemperature"]
+      -
+        code: "503"
+        description: "service unavailable"
+        expectedValues: []
+

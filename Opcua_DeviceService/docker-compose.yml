@@ -1,0 +1,20 @@
+  
+  device-opcua:
+    image: device-opcua:latest
+    ports:
+      - "49952:49952"
+    container_name: edgex-device-opcua
+    hostname: edgex-device-opcua
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-device-opcua
+    volumes:
+      - ./opcua:/custom-config
+    depends_on:
+      - data
+      - command
+    entrypoint:
+      - /device-opcua-c
+      - --confdir=/custom-config

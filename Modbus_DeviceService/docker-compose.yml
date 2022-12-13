@@ -1,0 +1,21 @@
+
+  device-modbus:
+    image: edgexfoundry/docker-device-modbus-go:1.2.1
+    ports:
+      - "0.0.0.0:49991:49991"
+    container_name: edgex-device-modbus
+    hostname: edgex-device-modbus
+    volumes:
+      - ./modbus:/custom-config
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-device-modbus
+    depends_on:
+      - data
+      - command
+    entrypoint:
+      - /device-modbus
+      - --registry
+      - --confdir=/custom-config
