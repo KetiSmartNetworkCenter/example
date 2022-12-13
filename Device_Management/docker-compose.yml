@@ -13,14 +13,14 @@ x-common-env-variables: &common-variables
   Clients_VirtualDevice_Host: edgex-device-virtual
   Databases_Primary_Host: edgex-redis
   Logging_EnableRemote: "false"
-  Databases_Device_Management: mongo 
+  Databases_Device_Management: mongo
 
 volumes:
   MongoDBVolume:
 
 services:
   device_management:
-    image: device_management:1.0
+    image: device_management:5.0
     ports: 
         - "0.0.0.0:5555:5555"
     container_name: device_management
