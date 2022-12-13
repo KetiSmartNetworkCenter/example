@@ -3,8 +3,15 @@
 <center><img width="70%" src="https://user-images.githubusercontent.com/120157640/207243629-53198c5c-c594-4d8d-8150-4c3da0f8ab45.png"></center>
 
 ## Get Started
-실행 방법 
+**제공하는 Services**
+
+* Device Management Service
+* OPC_UA Device Service
+* Modbus Device Service
+* MQTT Device Serivce
+* Cobs Device Service
+
+## Download Edge Computing Services
 ```
 git clone https://github.com/KetiSmartNetworkCenter/example.git
-
 ```
