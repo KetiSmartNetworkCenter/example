@@ -19,3 +19,7 @@ git clone https://github.com/KetiSmartNetworkCenter/example.git
 cd EdgeComputing/
 docker-compose up -d
 ```
+### Load Docker image
+```
+docker load -i {file_name}.tar
+```
