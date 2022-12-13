@@ -1,5 +1,5 @@
 # Edge Computing
-오픈소스 프레임워크 기반 엣지 컴퓨팅
+엣지 컴퓨팅 아래 그림과 같이 디바이스와 특정 프로토콜을 사용하여 통신하는 Deivce Service layer, 디바이스 데이터 수집 및 저장을 하는 Core Service layer, 디바이스의 정보를 관리 및 실시간 데이터를 전달하는 Device Management layer로 구성되어 있음.
 ## Get Started
 ## Open Source Framework
 
