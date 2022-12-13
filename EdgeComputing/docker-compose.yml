@@ -212,11 +212,10 @@ services:
     restart: always
 
 #################################################################
-# Device_Management MicroService
-# Device_Management + Device_Management_UI +MongoDB + MongoDB_Express
+# Device_Management Service
 #################################################################
   device_management:
-    image: device_management:1.0
+    image: device_management:5.0
     ports: 
         - "0.0.0.0:5555:5555"
     container_name: device_management
@@ -229,20 +228,6 @@ services:
         - data
     restart: always
 
-  mongoexpress:
-    image: mongo-express
-    ports:
-        - "127.0.0.1:8085:8081"
-    links:
-        - mongo
-    environment: 
-        - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
-    networks:
-        - edgex-network
-    depends_on: 
-        - mongo
-    restart: always
-
   mongo:
     image: mongo:latest
     ports: 
@@ -252,22 +237,7 @@ services:
         - MongoDBVolume:/data/db
     networks:
         - edgex-network
-
-  device-random:
-    image: edgexfoundry/docker-device-random-go:1.2.1
-    ports:
-      - "127.0.0.1:49988:49988"
-    container_name: edgex-device-random
-    hostname: edgex-device-random
-    networks:
-      - edgex-network
-    environment:
-      <<: *common-variables
-      Service_Host: edgex-device-random
-    depends_on:
-      - data
-      - command
-
+        
 networks:
   edgex-network:
     driver: "bridge"
