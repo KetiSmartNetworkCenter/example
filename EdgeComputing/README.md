@@ -5,14 +5,10 @@ docker-compose.yml 파일은 모든 Alpha Version Service를 구성하고 있으
 ```
 docker-compose up -d
 ```
-### 실시간 디바이스 데이터 확인 2가지 방법
-1. Eclipse MQTT Broker
+### 실시간 디바이스 데이터 확인 방법
+Eclipse MQTT Broker
 ```
 docker network ls
 docker network inspect {network's name} // find Eclipse MQTT Broker IP
 mosquitto_sub -h {Eclipse MQTT Broker IP} -p 1883 -t EdgeXEvent
-```
-2. Device Management Serivce Web Socket
-```
-
 ```
