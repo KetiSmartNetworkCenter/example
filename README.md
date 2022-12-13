@@ -3,8 +3,8 @@
 <center><img width="70%" src="https://user-images.githubusercontent.com/120157640/207243629-53198c5c-c594-4d8d-8150-4c3da0f8ab45.png"></center>
 
 ## Get Started
+실행 방법 
+```
+git clone https://github.com/KetiSmartNetworkCenter/example.git
 
-## Open Source Framework
-
-### git hub
-
+```
