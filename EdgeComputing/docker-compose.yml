@@ -194,9 +194,6 @@ services:
       - data
     restart: always
 
-#################################################################
-# MQTT Broker
-#################################################################
   mosquitto:
     image: "eclipse-mosquitto"
     ports:
@@ -211,37 +208,36 @@ services:
       - ./log:/mosquitto/log
     restart: always
 
-#################################################################
-# Device_Management Service
-#################################################################
-  device_management:
-    image: device_management:5.0
-    ports: 
-        - "0.0.0.0:5555:5555"
-    container_name: device_management
-    networks:
-        - edgex-network
-    environment:
-      <<: *common-variables
-    depends_on:
-        - mongo
-        - data
-    restart: always
-
-  mongo:
-    image: mongo:latest
-    ports: 
-        - "127.0.0.1:27017:27017"
-    container_name: mongo
-    volumes: 
-        - MongoDBVolume:/data/db
-    networks:
-        - edgex-network
-        
 networks:
   edgex-network:
     driver: "bridge"
 
+#################################################################
+# Device Management Service
+#################################################################
+  # device_management:
+  #   image: device_management:5.0
+  #   ports: 
+  #       - "0.0.0.0:5555:5555"
+  #   container_name: device_management
+  #   networks:
+  #       - edgex-network
+  #   environment:
+  #     <<: *common-variables
+  #   depends_on:
+  #       - mongo
+  #       - data
+  #   restart: always
+
+  # mongo:
+  #   image: mongo:latest
+  #   ports: 
+  #       - "127.0.0.1:27017:27017"
+  #   container_name: mongo
+  #   volumes: 
+  #       - MongoDBVolume:/data/db
+  #   networks:
+  #       - edgex-network
 
 #################################################################
 # MQTT Device Service
@@ -323,6 +319,7 @@ networks:
 #################################################################
 # Modbus Device Service
 #################################################################
+
   # device-modbus:
   #   image: edgexfoundry/docker-device-modbus-go:1.2.1
   #   ports:
