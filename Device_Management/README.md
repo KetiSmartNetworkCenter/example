@@ -116,7 +116,7 @@ The API is used for deleting Edge Device Information by device's id
 ```
 DELETE http://localhost:5555/api/v1/devices/{device' id}
 ``` 
-### Show Resource Information by device's id and resource's id
+#### Show Resource Information by device's id and resource's id
 The API is used for displaying resource information
 ```
 GET http://localhost:5555/api/v1/devices/{device's ID}/resources/{resource's ID}
@@ -162,5 +162,28 @@ Response Sample:
 ```
 #### GET Command
 The API is used for getting resource's value
+```
+GET http://localhost:5555/api/v1/command/devices/{device's ID}/resources/{resource's ID}
+```
+Response Sample:
+```
+  {
+    "device_id":"c9afb433-da08-49e8-83da-5f0b22fb9f95",
+    "device_name":"ex_modbus",
+    "resource_id":"2d76a579-c00b-4055-8843-c22388bab504",
+    "resource_name":"ex_modbus_resource_name",
+    "time":1667288180493422371,
+    "value":"2.793000e+01"
+  }
+```
 #### PUT Command
 The API is used for controlling resource's value
+```
+PUT http://localhost:5555/api/v1/command/devices/{device's ID}/resources/{resource's ID}
+```
+Request Sample:
+```
+{
+  "value":"1.2588"
+}
+```
