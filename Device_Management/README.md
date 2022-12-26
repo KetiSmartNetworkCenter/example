@@ -3,16 +3,27 @@
 압축된 docker image 파일인 device_management.tar를 docker image로 변환 후 EdgeComputing Framework에 docker-compose.yml에 정의 된 Service 형식을 추가하여 구동가능하다.
 
 
-#### Device Management Restful API List
-
-<img width="355" alt="github_device_management_restfulAPI" src="https://user-images.githubusercontent.com/120157640/209511773-1fa3c720-b425-4f3d-9963-f05c71881c62.PNG">
-
-#### Device_Management.tar to docker image
+#### Convert Device_Management.tar to docker image
 ```
 docker load -i device_management.tar
 ```
 
-#### Real-Time Device Data Web Socket address
+#### Web Socket address (Real-Time Device Data)
 ```
 ws://localhost:5555/WS
+```
+
+
+#### Device Management Restful API List
+
+<img width="355" alt="github_device_management_restfulAPI" src="https://user-images.githubusercontent.com/120157640/209511773-1fa3c720-b425-4f3d-9963-f05c71881c62.PNG">
+
+##### show Devices Informations
+The API is used for displaying all of EdgeDevices in framework
+```
+GET http://localhost/devices
+```
+Response Sample:
+```
+[{"created":},...]
 ```
